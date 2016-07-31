@@ -77,7 +77,19 @@ import.hfcs_data = function(path_folder) {
       }
     }
     assign("list_tab.to.store",list_tab.to.store,envir=.GlobalEnv)
-  } 
+  }
+  
+  if (length(list_files_ASCII)==0 & length(list_files_Stata)>0) {
+    list_tab = gsub(".dta","",list_files_Stata)
+    assign("list_tab.to.store",list_tab,envir=.GlobalEnv)
+    setwd(path_folder)
+    for (f in 1:length(list_files_Stata)) {
+      print(paste0("Importing table ",list_tab[f]),quote=FALSE)
+      txt = paste0(list_tab[f],"=read_dta('",list_files_Stata[f],"')")
+      eval(parse(text=txt))
+      assign(list_tab[f],eval(parse(text=list_tab[f])),envir=.GlobalEnv)
+    }
+  }
 }
 
 
