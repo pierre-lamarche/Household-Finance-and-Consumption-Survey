@@ -23,7 +23,7 @@ windows.select_data = function(){
 
 
 windows.save_data = function(list_file){
-  data_name = tclvalue(tkgetSaveFile("hfcs.RData",filetypes="{{RData files}{.RData}} {{rda files}{.rda}}"))
+  data_name = tclvalue(tkgetSaveFile(initialfile="hfcs.RData",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
   save(list=list_file,file=data_name)
 }
 
