@@ -10,7 +10,19 @@ library(Hmisc)
 
 default_path = getwd()
 
-#### First you need to download the data
+#### First you need to download the data - ASCII or Stata files, and store the data on your computer.
+#### HFCS data come as a zip file - it gets automatically unzipped when downloading the file on a Mac, but has to be unzipped
+#### on other OSs (Windows, Linux). So far the script does not allow for automatically unzip through R the archive, but the
+#### feature should be implemented on a later version.
+
+
+#### All you have to do is to remember the path of the folder in which you stored the data and run the scripts on R.
+#### A nice way of launching the script without less CTR+C, CTRL+V effort :
+#### submit on any R GUI the following code:
+#### source("https://raw.githubusercontent.com/pierre-lamarche/Household-Finance-and-Consumption-Survey/master/1.%20Import%20data.R")
+
+
+### the opening window, to select the folder where the data are stored
 
 windows.select_data = function(){
   name_folder = tk_choose.dir(default = getwd(),"Choose the folder where the data are stored")
@@ -22,10 +34,15 @@ windows.select_data = function(){
     }
 
 
+### the saving window, to select where you want to store the data in R format
+
 windows.save_data = function(list_file){
   data_name = tclvalue(tkgetSaveFile(initialfile="hfcs.RData",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
   save(list=list_file,file=data_name)
 }
+
+
+### the core function, dealing with the treatment of the data and their conversion into R format
 
 import.hfcs_data = function(path_folder) {
   list_files_SAS = list.files(path=path_folder,pattern=".sas7bdat")
