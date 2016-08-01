@@ -37,7 +37,7 @@ windows.select_data = function(){
 ### the saving window, to select where you want to store the data in R format
 
 windows.save_data = function(list_file){
-  data_name = tclvalue(tkgetSaveFile(initialfile="hfcs.RData",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
+  data_name = tclvalue(tkgetSaveFile(initialfile="hfcs",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
   save(list=list_file,file=data_name)
 }
 
