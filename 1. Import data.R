@@ -17,7 +17,7 @@ default_path = getwd()
 
 
 #### All you have to do is to remember the path of the folder in which you stored the data and run the scripts on R.
-#### A nice way of launching the script without less CTR+C, CTRL+V effort :
+#### A nice way of launching the script with less of CTR+C, CTRL+V effort :
 #### submit on any R GUI the following code:
 #### source("https://raw.githubusercontent.com/pierre-lamarche/Household-Finance-and-Consumption-Survey/master/1.%20Import%20data.R")
 
