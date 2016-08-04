@@ -25,19 +25,33 @@ default_path = getwd()
 ### the opening window, to select the folder where the data are stored
 
 windows.select_data = function(){
-  name_folder = tk_choose.dir(default = getwd(),"Choose the folder where the data are stored")
+  if (.Platform$OS.type == "windows") {
+    fk_win = tktoplevel()
+    tcl("wm", "attributes", fk_win, topmost=TRUE)
+    name_folder = tclvalue(tcl("tk_chooseDirectory",initialdir=getwd(),title="Choose the folder where the data are stored",parent=fk_win))
+    tkdestroy(fk_win)
+  } else {
+    name_folder = tk_choose.dir(default = getwd(),"Choose the folder where the data are stored")
+  }
   if (name_folder == "") {}
   else {
     import.hfcs_data(name_folder)
     windows.save_data(list_tab.to.store)
-        }
-    }
+  }
+}
 
 
 ### the saving window, to select where you want to store the data in R format
 
 windows.save_data = function(list_file){
-  data_name = tclvalue(tkgetSaveFile(initialfile="hfcs",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
+  if (.Platform$OS.type == "windows") {
+    fk_win = tktoplevel()
+    tcl("wm", "attributes", fk_win, topmost=TRUE)
+    data_name = tclvalue(tkgetSaveFile(initialdir=getwd(),initialfile="hfcs",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}",defaultextension=".RData",parent=fk_win))
+    tkdestroy(fk_win)
+  } else {
+    data_name = tclvalue(tkgetSaveFile(initialdir=getwd(),initialfile="hfcs",filetypes="{{RData files} {.RData}} {{rda files} {.rda}}",defaultextension=".RData"))
+  }
   save(list=list_file,file=data_name)
 }
 
