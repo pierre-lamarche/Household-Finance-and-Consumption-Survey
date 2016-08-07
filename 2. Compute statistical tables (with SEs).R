@@ -10,7 +10,15 @@ library(mitools)
 name.hfcs = tclvalue(tkgetOpenFile(filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
 load(name.hfcs)
 
-vars.to.keep = names(D1)
+##### compute variables
+D1$DL1000i = as.numeric(!is.na(D1$DL1000))
+D2$DL1000i = as.numeric(!is.na(D2$DL1000))
+D3$DL1000i = as.numeric(!is.na(D3$DL1000))
+D4$DL1000i = as.numeric(!is.na(D4$DL1000))
+D5$DL1000i = as.numeric(!is.na(D5$DL1000))
+
+#vars.to.keep = names(D1)
+vars.to.keep = c("ID","SA0100","SA0010","IM0100","DA3001","DL1000i","DL1000","DN3001")
 
 
 imp1 <- D1[ , vars.to.keep ]
@@ -39,5 +47,16 @@ hfcs.design = svrepdesign(weights=~HW0010,repweights=W[,-1:-4],
 
 v_median_DA3001 = MIcombine(with(hfcs.design,svyquantile(~DA3001,quantiles=0.5,method="constant",interval.type="quantile")))
 v_median_DA3001_by_SA0100 = MIcombine(with(hfcs.design,svyby(~DA3001,~SA0100,svyquantile,0.5,method="constant",interval.type="quantile")))
+
+v_mean_DL1000i = MIcombine(with(hfcs.design,svymean(~DL1000i)))
+v_mean_DL1000i_by_SA0100 = MIcombine(with(hfcs.design,svyby(~DL1000i,~SA0100,svymean)))
+
+v_median_DL1000 = MIcombine(with(hfcs.design,svyquantile(~DL1000,quantiles=0.5,method="constant",interval.type="quantile")))
+v_median_DL1000_by_SA0100 = MIcombine(with(hfcs.design,svyby(~DL1000,~SA0100,svyquantile,0.5,method="constant",interval.type="quantile")))
+
+v_median_DN3001 = MIcombine(with(hfcs.design,svyquantile(~DN3001,quantiles=0.5,method="constant",interval.type="quantile")))
+v_median_DN3001_by_SA0100 = MIcombine(with(hfcs.design,svyby(~DN3001,~SA0100,svyquantile,0.5,method="constant",interval.type="quantile")))
+
+
 
 
