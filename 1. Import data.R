@@ -106,6 +106,14 @@ import.hfcs_data = function(path_folder) {
       assign(list_tab[f],eval(parse(text=list_tab[f])),envir=.GlobalEnv)
     }
   }
+  
+  if (length(list_files_ASCII) == 0 & length(list_files_Stata) == 0 & length(list_files_SAS) == 0 & length(list_files_zip) > 0) {
+    if (length(list_files_zip) == 1) {
+      setwd(path_folder)
+      unzip(list_files_zip,exdir=paste0(path_folder,"/unzip"))
+      import.hfcs_data(paste0(path_folder,"/unzip"))
+      }
+  }
 }
 
 
