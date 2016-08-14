@@ -39,8 +39,8 @@ vars.to.keep = c("ID","SA0100","SA0010","IM0100","DA3001","DL1000i","DL1000","DN
 ##### compute variables in the H-table
 
 H$tenure_status = NA
-H[H$HB0300 %in% c(1,2,4),]$tenure_status = "Owner"
-H[H$HB0300 == 3,]$tenure_status = "Tenant"
+H[H$HB0300 %in% c(1,2),]$tenure_status = "Owner"
+H[H$HB0300 %in% c(3,4),]$tenure_status = "Non-owner"
 
 
 D = merge(D,H[,c("ID","HW0010","tenure_status")],by="ID")
