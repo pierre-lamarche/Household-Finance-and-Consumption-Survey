@@ -46,6 +46,9 @@ H[H$HB0300 == 3,]$tenure_status = "Tenant"
 D = merge(D,H[,c("ID","HW0010","tenure_status")],by="ID")
 D = D[order(D$IM0100),]
 
+D_owners = D[D$tenure_status=="Owner",]
+D_tenants = D[D$tenure_status=="Tenant",]
+
 #### generic function
 
 mean.hfcs = function(table,var,by=NULL) {
@@ -118,6 +121,7 @@ median_DA3001 = D %>%
 median_DA3001 = quantile.hfcs(table=D,var="DA3001")
 
 
+#### All households, proportion of indebted households (DL1000 not missing)
 
 mean_DL1000i_by_SA0100 = D %>%
   group_by(SA0100,IM0100) %>%
@@ -135,3 +139,13 @@ mean_DL1000i_by_SA0100 = mean.hfcs(table=D,var="DL1000i",by="SA0100")
 mean_DL1000i = mean.hfcs(table=D,var="DL1000i")
 
 
+#### All households, median of total liabilities (DL1000)
+
+median_DL1000_by_SA0100 = quantile.hfcs(table=D,var="DL1000",by="SA0100")
+median_DL1000 = quantile.hfcs(table=D,var="DL1000",by="SA0100")
+
+
+#### All households, median of net wealth (DN3001)
+
+median_DN3001_by_SA0100 = quantile.hfcs(table=D,var="DN3001",by="SA0100")
+median_DN3001 = quantile.hfcs(table=D,var="DN3001",by="SA0100")
