@@ -131,7 +131,7 @@ mean_DL1000i = D %>%
 
 
 ### alternatively 
-mean_DL1000i_by_SA0100 = mean.hfcs(table=D,var="DA3001",by="SA0100")
-mean_DL1000i = mean.hfcs(table=D,var="DA3001")
+mean_DL1000i_by_SA0100 = mean.hfcs(table=D,var="DL1000i",by="SA0100")
+mean_DL1000i = mean.hfcs(table=D,var="DL1000i")
 
 
