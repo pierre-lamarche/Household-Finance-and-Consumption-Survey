@@ -103,6 +103,8 @@ import.hfcs_data = function(path_folder) {
       eval(parse(text=txt))
       txt = paste0("names(",list_tab[f],") = toupper(names(",list_tab[f],"))")
       eval(parse(text=txt))
+      txt = paste0("names(",list_tab[f],")[which(names(",list_tab[f],")=='SURVEY')] = 'Survey'")
+      eval(parse(text=txt))
       assign(list_tab[f],eval(parse(text=list_tab[f])),envir=.GlobalEnv)
     }
   }
