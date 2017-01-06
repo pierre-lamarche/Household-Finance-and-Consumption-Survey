@@ -42,7 +42,6 @@ windows.select_data <- function(){
   }
 }
 
-
 ### the saving window, to select where you want to store the data in R format
 
 windows.save_data <- function(list_file){
@@ -85,38 +84,42 @@ import.hfcs_data <- function(path_folder, saveMemory) {
   if (length(list_files_ASCII)>0) {
     list_tab <- gsub(".csv","",list_files_ASCII)
     setwd(path_folder)
-    list_tab.to.store <- c()
     ##### assign labels to the variables
     list_lab <- list_tab[substr(list_tab,1,7) == "labels_"]
-    list_tab_lab <- gsub("labels_","",list_lab)
+    list_tab.to.store <- list_tab[substr(list_tab,1,7) != "labels_" & substr(list_tab,1,12) != "valuelabels_"]
     
-    for (f in 1:length(list_files_ASCII)) {
-      print(paste0("Importing table ",list_tab[f]),quote=FALSE)
-      txt <- paste0(list_tab[f],"<- read.table('",list_files_ASCII[f],"',header=TRUE,sep=',',na.strings='')")
-      eval(parse(text=txt))
-      if (gsub("[1-5]","",list_tab[f]) %in% list_tab_lab) {
-        var.labels <- c("ID",as.character(eval(parse(text=list_lab[f]))[,2]))
-        list_tab.to.store = c(list_tab.to.store,list_tab.to.label)
-      }
+    for (f in 1:length(list_lab)) {
+      txt <- paste0(list_lab[f], " <- read.table(\"", list_lab[f], ".csv\", header = TRUE, 
+                    sep = \",\", na.strings = '')")
+      eval(parse(text = txt))
     }
-    for (t in 1:length(list_lab)) {
-      #list_tab.to.label = list_tab[substr(list_tab,1,nchar(list_tab_lab[t]))==list_tab_lab[t]]
-      if (list_tab_lab[t] == "W") list_tab.to.label = list_tab_lab[t]
-      if (list_tab_lab[t] != "W") list_tab.to.label = paste0(list_tab_lab[t],1:5)
-      
-      for (k in 1:length(list_tab.to.label)) {
-        txt = paste0("label(",list_tab.to.label[k],") = lapply(var.labels, function(x) label(",list_tab.to.label[k],") = x)")
-        eval(parse(text=txt))
-        assign(list_tab.to.label[k],eval(parse(text=list_tab.to.label[k])),envir=.GlobalEnv)
+
+    for (f in 1:length(list_tab.to.store)) {
+      cat(paste0("Importing table ",list_tab.to.store[f]),"\n")
+      txt <- paste0(list_tab.to.store[f],"<- read.table(\"", list_tab.to.store[f],
+                    ".csv\", header=TRUE, sep=\",\", na.strings='')")
+      eval(parse(text=txt))
+      if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_lab, 8, 10)) {
+        cat(paste0(" * Labelling table ", list_tab.to.store[f], "\n"))
+        var.labels <- c("ID",
+                        as.character(eval(parse(text=paste0("labels_", 
+                                                            gsub("[1-5]","",list_tab.to.store[f]))))[,2]))
+        txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
+        eval(parse(text = txt))
+        assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
+      }
+      if (saveMemory) {
+        cat(paste0(" * Saving table ", list_tab.to.store[f]))
+        save(list = list_tab.to.store[f], file = paste0(folder.to.save, "/", 
+                                                        list_tab.to.store[f], ".RData"))
+        cat(paste0(" * Removing table and garbage collector..."))
+        rm(list = list_tab.to.store[f])
+        rm(list = list_tab.to.store[f], envir = .GlobalEnv)
+        gc()
       }
     }
     if (!saveMemory) {
       assign("list_tab.to.store",list_tab.to.store,envir=.GlobalEnv)
-    }
-    else {
-      for (l in 1:length(list_tab.to.store)) {
-        
-      }
     }
   }
   
