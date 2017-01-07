@@ -89,8 +89,8 @@ import.hfcs_data <- function(path_folder, saveMemory) {
     list_tab.to.store <- list_tab[substr(list_tab,1,7) != "labels_" & substr(list_tab,1,12) != "valuelabels_"]
     
     for (f in 1:length(list_lab)) {
-      txt <- paste0(list_lab[f], " <- read.table(\"", list_lab[f], ".csv\", header = TRUE, 
-                    sep = \",\", na.strings = '')")
+      txt <- paste0(list_lab[f], " <- read.table(\"", list_lab[f], ".csv\", header = FALSE, 
+                    sep = \",\", na.strings = '', col.names = c(\"var\", \"label\"))")
       eval(parse(text = txt))
     }
 
@@ -101,9 +101,9 @@ import.hfcs_data <- function(path_folder, saveMemory) {
       eval(parse(text=txt))
       if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_lab, 8, 10)) {
         cat(paste0(" * Labelling table ", list_tab.to.store[f], "\n"))
-        var.labels <- c("ID",
-                        as.character(eval(parse(text=paste0("labels_", 
-                                                            gsub("[1-5]","",list_tab.to.store[f]))))[,2]))
+        var.labels <- as.character(eval(parse(text=paste0("labels_",gsub("[1-5]",
+                                                                         "",
+                                                                         list_tab.to.store[f]))))[,2])
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
         eval(parse(text = txt))
         assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
