@@ -36,7 +36,7 @@ windows.select_data <- function(){
   }
   if (name_folder == "") {}
   else {
-    import.hfcs_data(name_folder, memorySaving)
+    import.hfcs_data(name_folder, memorySaving, TRUE)
     if (!memorySaving) 
       windows.save_data(list_tab.to.store)
   }
@@ -70,9 +70,21 @@ windows.save_folder <- function() {
   return(name_folder)
 }
 
+### Two functions for labelling the values of the variables
+
+createLabelList <- function(data) {
+  return(list(var = unique(data[,1]), level = data[,2], value = data[,3]))
+}
+
+factorize <- function(x, data) {
+  data[, x$var] <- factor(data[, x$var], 
+                          levels = x$level, labels = x$value)
+  return(data)
+}
+
 ### the core function, dealing with the treatment of the data and their conversion into R format
 
-import.hfcs_data <- function(path_folder, saveMemory) {
+import.hfcs_data <- function(path_folder, saveMemory, labelling) {
   list_files_SAS <- list.files(path=path_folder,pattern=".sas7bdat")
   list_files_ASCII <- list.files(path=path_folder,pattern=".csv")
   list_files_Stata <- list.files(path=path_folder,pattern=".dta")
@@ -86,21 +98,28 @@ import.hfcs_data <- function(path_folder, saveMemory) {
     setwd(path_folder)
     ##### assign labels to the variables
     list_lab <- list_tab[substr(list_tab,1,7) == "labels_"]
+    list_labValues <- list_tab[substr(list_tab,1,12) == "valuelabels_"]
     list_tab.to.store <- list_tab[substr(list_tab,1,7) != "labels_" & substr(list_tab,1,12) != "valuelabels_"]
     
     for (f in 1:length(list_lab)) {
       txt <- paste0(list_lab[f], " <- read.table(\"", list_lab[f], ".csv\", header = FALSE, 
-                    sep = \",\", na.strings = '', col.names = c(\"var\", \"label\"))")
+                    sep = \",\", na.strings = '', col.names = c(\"var\", \"label\"), stringsAsFactors = FALSE)")
+      eval(parse(text = txt))
+    }
+    
+    for (f in 1:length(list_labValues)) {
+      txt <- paste0(list_labValues[f], " <- read.table(\"", list_labValues[f], ".csv\", header = FALSE, 
+                    sep = \",\", na.strings = '', col.names = c(\"var\", \"level\", \"label\"), stringsAsFactors = FALSE)")
       eval(parse(text = txt))
     }
 
     for (f in 1:length(list_tab.to.store)) {
       cat(paste0("Importing table ",list_tab.to.store[f]),"\n")
       txt <- paste0(list_tab.to.store[f],"<- read.table(\"", list_tab.to.store[f],
-                    ".csv\", header=TRUE, sep=\",\", na.strings='')")
+                    ".csv\", header=TRUE, sep=\",\", na.strings='', stringsAsFactors = FALSE)")
       eval(parse(text=txt))
       if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_lab, 8, 10)) {
-        cat(paste0(" * Labelling table ", list_tab.to.store[f], "\n"))
+        cat(paste0(" * Labelling variables in table ", list_tab.to.store[f], "\n"))
         labels.table <- eval(parse(text=paste0("labels_",gsub("[1-5]","",list_tab.to.store[f]))))
         var.labels <- as.character(labels.table$label)
         var.names <- as.character(labels.table$var)
@@ -116,6 +135,16 @@ import.hfcs_data <- function(path_folder, saveMemory) {
         # apply the label to each variable
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
         eval(parse(text = txt))
+      }
+      if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_labValues, 13, 15) & labelling == TRUE) {
+        txt <- paste0("labelTab <- valuelabels_", gsub("[1-5]","",list_tab.to.store[f]))
+        eval(parse(text = txt))
+        labelList <- by(labelTab, list(labelTab$var), createLabelList)
+        for (k in 1:length(labelList)) {
+          cat(paste0(" * Labelling values for variable ", labelList[[k]]$var, "\n"))
+          txt <- paste0(list_tab.to.store[f], " <- factorize(labelList[[k]], ", list_tab.to.store[f], ")")
+          eval(parse(text = txt))
+        }
       }
       assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       if (saveMemory) {
