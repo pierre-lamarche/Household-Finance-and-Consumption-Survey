@@ -116,8 +116,8 @@ import.hfcs_data <- function(path_folder, saveMemory) {
         # apply the label to each variable
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
         eval(parse(text = txt))
-        assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       }
+      assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       if (saveMemory) {
         cat(paste0(" * Saving table ", list_tab.to.store[f]))
         save(list = list_tab.to.store[f], file = paste0(folder.to.save, "/", 
