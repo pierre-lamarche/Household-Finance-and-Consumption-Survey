@@ -101,9 +101,19 @@ import.hfcs_data <- function(path_folder, saveMemory) {
       eval(parse(text=txt))
       if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_lab, 8, 10)) {
         cat(paste0(" * Labelling table ", list_tab.to.store[f], "\n"))
-        var.labels <- as.character(eval(parse(text=paste0("labels_",gsub("[1-5]",
-                                                                         "",
-                                                                         list_tab.to.store[f]))))[,2])
+        labels.table <- eval(parse(text=paste0("labels_",gsub("[1-5]","",list_tab.to.store[f]))))
+        var.labels <- as.character(labels.table$label)
+        var.names <- as.character(labels.table$var)
+        names.table <- names(eval(parse(text = list_tab.to.store[f])))
+        # filter the existing variables and remove duplicate - yes it happens sometimes
+        var.labels <- var.labels[var.names %in% names.table]
+        var.names <- var.names[var.names %in% names.table]
+        var.labels <- var.labels[!duplicated(var.names)]
+        var.names <- var.names[!duplicated(var.names)]
+        # now sort the labels according to the order in the table
+        orderNames <- match(names.table, var.names)
+        var.labels <- var.labels[orderNames]
+        # apply the label to each variable
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
         eval(parse(text = txt))
         assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
