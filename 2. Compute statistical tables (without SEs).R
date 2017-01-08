@@ -8,7 +8,6 @@ library(dplyr)
 name.hfcs = tclvalue(tkgetOpenFile(filetypes="{{RData files} {.RData}} {{rda files} {.rda}}"))
 load(name.hfcs)
 
-
 ##### combine the different implicates into one single dataframe
 
 list_table = c("H","HN","D","P","PN")
@@ -28,7 +27,6 @@ for (k in 1:length(list_table)) {
 rm(list=list.to.remove)
 gc()
 
-
 ##### compute variables
 D$DL1000i = as.numeric(!is.na(D$DL1000))
 
@@ -38,10 +36,7 @@ vars.to.keep = c("ID","SA0100","SA0010","IM0100","DA3001","DL1000i","DL1000","DN
 
 ##### compute variables in the H-table
 
-H$tenure_status = NA
-H[H$HB0300 %in% c(1,2),]$tenure_status = "Owner"
-H[H$HB0300 %in% c(3,4),]$tenure_status = "Non-owner"
-
+H <- mutate(H, tenure_status = ifelse(HB0300 %in% levels(H$HB0300)[1:2], "Owner", "Non-owner"))
 
 D = merge(D,H[,c("ID","HW0010","tenure_status")],by="ID")
 D = D[order(D$IM0100),]
