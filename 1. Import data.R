@@ -118,6 +118,16 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
       txt <- paste0(list_tab.to.store[f],"<- read.table(\"", list_tab.to.store[f],
                     ".csv\", header=TRUE, sep=\",\", na.strings='', stringsAsFactors = FALSE)")
       eval(parse(text=txt))
+      if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_labValues, 13, 15) & labelling == TRUE) {
+        txt <- paste0("labelTab <- valuelabels_", gsub("[1-5]","",list_tab.to.store[f]))
+        eval(parse(text = txt))
+        labelList <- by(labelTab, list(labelTab$var), createLabelList)
+        for (k in 1:length(labelList)) {
+          cat(paste0(" * Labelling values for variable ", labelList[[k]]$var, "\n"))
+          txt <- paste0(list_tab.to.store[f], " <- factorize(labelList[[k]], ", list_tab.to.store[f], ")")
+          eval(parse(text = txt))
+        }
+      }
       if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_lab, 8, 10)) {
         cat(paste0(" * Labelling variables in table ", list_tab.to.store[f], "\n"))
         labels.table <- eval(parse(text=paste0("labels_",gsub("[1-5]","",list_tab.to.store[f]))))
@@ -135,16 +145,6 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
         # apply the label to each variable
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
         eval(parse(text = txt))
-      }
-      if (gsub("[1-5]","",list_tab.to.store[f]) %in% substr(list_labValues, 13, 15) & labelling == TRUE) {
-        txt <- paste0("labelTab <- valuelabels_", gsub("[1-5]","",list_tab.to.store[f]))
-        eval(parse(text = txt))
-        labelList <- by(labelTab, list(labelTab$var), createLabelList)
-        for (k in 1:length(labelList)) {
-          cat(paste0(" * Labelling values for variable ", labelList[[k]]$var, "\n"))
-          txt <- paste0(list_tab.to.store[f], " <- factorize(labelList[[k]], ", list_tab.to.store[f], ")")
-          eval(parse(text = txt))
-        }
       }
       assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       if (saveMemory) {
