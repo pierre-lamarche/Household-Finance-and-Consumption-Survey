@@ -25,7 +25,9 @@ default_path <- getwd()
 ### the opening window, to select the folder where the data are stored
 
 windows.select_data <- function(){
-  memorySaving <- (memory.size() < 2000)
+  if (.Platform$OS.type == "windows") 
+    memorySaving <- (memory.limit() < 5000 |.Platform$r_arch == "i386")
+  else memorySaving <- (.Platform$r_arch == "i386")
   if (.Platform$OS.type == "windows") {
     fk_win <- tktoplevel()
     tcl("wm", "attributes", fk_win, topmost=TRUE)
