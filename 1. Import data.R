@@ -143,15 +143,15 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
         orderNames <- match(names.table, var.names)
         var.labels <- var.labels[orderNames]
         # apply the label to each variable
-        txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) label(",list_tab.to.store[f],") = x)")
+        txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) return(x))")
         eval(parse(text = txt))
       }
       assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       if (saveMemory) {
-        cat(paste0(" * Saving table ", list_tab.to.store[f]))
+        cat(paste0(" * Saving table ", list_tab.to.store[f], "\n"))
         save(list = list_tab.to.store[f], file = paste0(folder.to.save, "/", 
                                                         list_tab.to.store[f], ".RData"))
-        cat(paste0(" * Removing table and garbage collector..."))
+        cat(paste0(" * Removing table and garbage collector...\n"))
         rm(list = list_tab.to.store[f])
         rm(list = list_tab.to.store[f], envir = .GlobalEnv)
         gc()
