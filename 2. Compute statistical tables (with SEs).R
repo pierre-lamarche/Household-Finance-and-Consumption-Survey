@@ -48,7 +48,15 @@ imp3 <- D[ D$IM0100 == 3, c(vars.to.keep,"HW0010","tenure_status") ]
 imp4 <- D[ D$IM0100 == 4, c(vars.to.keep,"HW0010","tenure_status") ]
 imp5 <- D[ D$IM0100 == 5, c(vars.to.keep,"HW0010","tenure_status") ]
 
-w <- W[substr(names(W),1,2) == "wr"] 
+### solve issues with UDBs for wave 1
+### missing 1000th replicate weight for FR + some missing values instead of 0s
+W <- merge(W, imp1[,c("ID","HW0010")], by = c("ID"))
+W <- mutate(W,
+            WR1000 = ifelse(is.na(WR1000), HW0010, WR1000))
+
+w <- W[substr(names(W),1,2) == "WR"] 
+
+w[is.na(w)] <- 0
 
 hfcs.design = svrepdesign(weights=~HW0010,repweights=w,
                           data = imputationList( list( imp1 , imp2 , imp3 , imp4 , imp5 ) ) ,
