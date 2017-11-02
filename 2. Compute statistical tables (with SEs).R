@@ -40,7 +40,9 @@ vars.to.keep = c("ID","SA0100","SA0010","IM0100","DA3001","DL1000i","DL1000","DN
 
 H <- mutate(H, tenure_status = ifelse(HB0300 %in% levels(H$HB0300)[1:2], "Owner", "Non-owner"))
 
-D = merge(D,H[,c("ID","HW0010","tenure_status")],by="ID")
+if ("HW0010" %in% names(D))
+    D = merge(D,H[,c("ID","tenure_status")],by="ID") else 
+      D = merge(D,H[,c("ID","HW0010","tenure_status")],by="ID")
 
 imp1 <- D[ D$IM0100 == 1, c(vars.to.keep,"HW0010","tenure_status") ]
 imp2 <- D[ D$IM0100 == 2, c(vars.to.keep,"HW0010","tenure_status") ]

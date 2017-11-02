@@ -148,9 +148,15 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
         txt <- paste0("label(", list_tab.to.store[f], ") <- lapply(var.labels, function(x) return(x))")
         eval(parse(text = txt))
       }
-      ## rename properly the W table
-      if (list_tab.to.store[f] == "W")
-        names(W) <- toupper(names(W))
+      ## rename properly the tables
+      var.names <- data.frame(names = names(eval(parse(text=list_tab.to.store[f]))), stringsAsFactors = FALSE)
+      new.var.names <- mutate(var.names,
+                              names = ifelse(substr(names, 1, 1) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
+                                             ifelse(substr(names, 1, 1) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
+                                                    toupper(names))))
+      txt <- paste("names(", list_tab.to.store[f], ") <- as.character(new.var.names[,1])")
+      eval(parse(text = txt))
+
       assign(list_tab.to.store[f],eval(parse(text=list_tab.to.store[f])),envir=.GlobalEnv)
       if (saveMemory) {
         cat(paste0(" * Saving table ", list_tab.to.store[f], "\n"))
