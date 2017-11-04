@@ -182,8 +182,14 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
       print(paste0("Importing table ",list_tab[f]),quote=FALSE)
       txt = paste0(list_tab[f],"=read_dta('",list_files_Stata[f],"')")
       eval(parse(text=txt))
-      txt = paste0("names(",list_tab[f],") = toupper(names(",list_tab[f],"))")
-      eval(parse(text=txt))
+      ### Renaming variables
+      var.names <- data.frame(names = names(eval(parse(text=list_tab.to.store[f]))), stringsAsFactors = FALSE)
+      new.var.names <- mutate(var.names,
+                              names = ifelse(substr(names, 1, 1) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
+                                             ifelse(substr(names, 1, 1) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
+                                                    toupper(names))))
+      txt <- paste("names(", list_tab.to.store[f], ") <- as.character(new.var.names[,1])")
+      eval(parse(text = txt))
       txt = paste0("names(",list_tab[f],")[which(names(",list_tab[f],")=='SURVEY')] = 'Survey'")
       eval(parse(text=txt))
       assign(list_tab[f],eval(parse(text=list_tab[f])),envir=.GlobalEnv)
