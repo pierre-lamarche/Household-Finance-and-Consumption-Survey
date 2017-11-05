@@ -152,8 +152,8 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
       ## rename properly the tables
       var.names <- data.frame(names = names(eval(parse(text=list_tab.to.store[f]))), stringsAsFactors = FALSE)
       new.var.names <- mutate(var.names,
-                              names = ifelse(substr(names, 1, 1) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
-                                             ifelse(substr(names, 1, 1) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
+                              names = ifelse(toupper(substr(names, 1, 1)) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
+                                             ifelse(toupper(substr(names, 1, 1)) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
                                                     toupper(names))))
       txt <- paste("names(", list_tab.to.store[f], ") <- as.character(new.var.names[,1])")
       eval(parse(text = txt))
@@ -185,8 +185,8 @@ import.hfcs_data <- function(path_folder, saveMemory, labelling) {
       ### Renaming variables
       var.names <- data.frame(names = names(eval(parse(text=list_tab.to.store[f]))), stringsAsFactors = FALSE)
       new.var.names <- mutate(var.names,
-                              names = ifelse(substr(names, 1, 1) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
-                                             ifelse(substr(names, 1, 1) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
+                              names = ifelse(toupper(substr(names, 1, 1)) != "F" & nchar(names) == 7 & names != "DHHTYPE", paste0(toupper(substr(names, 1, 6)), tolower(substr(names, 7, nchar(names)))),
+                                             ifelse(toupper(substr(names, 1, 1)) == "F" & nchar(names) == 8, paste0(toupper(substr(names, 1, 7)), tolower(substr(names, 8, nchar(names)))),
                                                     toupper(names))))
       txt <- paste("names(", list_tab.to.store[f], ") <- as.character(new.var.names[,1])")
       eval(parse(text = txt))
