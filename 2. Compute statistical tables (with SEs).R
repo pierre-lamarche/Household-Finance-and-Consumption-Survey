@@ -5,6 +5,8 @@ library(tcltk2)
 library(survey)
 library(mitools)
 library(dplyr)
+library(reshape2)
+library(sqldf)
 
 ##### define the folder where the HFCS data are stored
 
@@ -50,11 +52,30 @@ imp3 <- D[ D$IM0100 == 3, c(vars.to.keep,"HW0010","tenure_status") ]
 imp4 <- D[ D$IM0100 == 4, c(vars.to.keep,"HW0010","tenure_status") ]
 imp5 <- D[ D$IM0100 == 5, c(vars.to.keep,"HW0010","tenure_status") ]
 
-### solve issues with UDBs for wave 1
-### missing 1000th replicate weight for FR + some missing values instead of 0s
+### solve issues with UDBs for waves 1-2
+### missing 1000th replicate weight for FR + some missing values instead of 0s in wave 1
+### misssing 750th replicate weight for IE in wave 2
+### apply a generic solution consisting of replacing these empty data with the sampling weights HW0010
 W <- merge(W, imp1[,c("ID","HW0010")], by = c("ID"))
-W <- mutate(W,
-            WR1000 = ifelse(is.na(WR1000), HW0010, WR1000))
+W <- arrange(W, SA0100, SA0010)
+misW <- W %>%
+  select(SA0100, starts_with("WR")) %>%
+  group_by(SA0100) %>%
+  summarise_all(function(x) mean(is.na(x)))
+misW <- melt(misW, id.vars = "SA0100", variable.name = "WR", value.name = "miss_WR")
+tW <- melt(select(W, SA0100, SA0010, HW0010, starts_with("WR")), id.vars = c("SA0100","SA0010","HW0010"), variable.name = "WR", value.name = "value_WR")
+
+tW <- sqldf("select a.*, b.miss_WR from tW as a, misW as b where a.SA0100 = b.SA0100 and a.WR = b.WR")
+#tW <- merge(tW, misW, by = c("SA0100","WR"))
+#tW <- tW[,-c(6,7)]
+
+tW <- mutate(tW,
+             value_WR = ifelse(miss_WR == 1, HW0010, value_WR))
+
+W <- dcast(SA0100+SA0010~WR, data = tW, value.var = "value_WR")
+
+#W <- mutate(W,
+#            WR1000 = ifelse(is.na(WR1000), HW0010, WR1000))
 
 w <- W[substr(names(W),1,2) == "WR"] 
 
